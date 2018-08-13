@@ -1,0 +1,155 @@
+查看阿帕奇版本
+
+apachectl -v
+
+查看Python版本号
+
+python --version
+
+python3 --version
+
+删除apache
+1. 删除apache
+
+代码:
+
+$ sudo apt-get --purge remove apache-common
+
+$ sudo apt-get --purge remove apache
+
+2.找到没有删除掉的配置文件，一并删除
+
+代码:
+
+$ sudo find /etc -name "*apache*" |xargs  rm -rf
+
+$ sudo rm -rf /var/www
+
+$sudo rm -rf /etc/libapache2-mod-jk
+
+3.删除关联，这样就可以再次用apt-get install apache2 重装了
+
+#dpkg -l |grep apache2|awk '{print $2}'|xargs dpkg -P
+
+查看Django版本号
+
+python -m django --version
+
+关闭Linux Ubuntu 防火墙
+查找防火墙的状态
+
+通过打开终端或通过基于ssh的会话登录，以root用户身份登录。键入以下命令：
+
+sudo ufw status
+Ubuntu stop iptables service命令（类似于/etc/init.d/iptables stop）
+
+键入以下命令卸载防火墙，并在启动时禁用防火墙：
+
+sudo ufw disable
+Ubuntu start iptables service命令（类似于/etc/init.d/iptables start）
+
+键入以下命令重新加载防火墙并启动防火墙启动：
+
+sudo ufw enable
+Ubuntu reload / restart iptables service命令（类似于/etc/init.d/iptables reload/restart）
+
+键入以下命令重新加载防火墙：
+
+sudo ufw reload
+在Ubuntu和其他Linux发行版上启用/禁用防火墙的替代方法
+
+如果您不使用ufw命令和/或ufw未安装，请尝试以下通用方法：
+
+获取IPv4 iptables状态
+
+sudo iptables -L -n -v
+获取IPv6 ip6tables状态
+
+sudo ip6tables -L -n -v
+保存IPv4 iptables防火墙
+
+使用iptables-save命令保存当前的防火墙规则：
+
+sudo iptables-save > $HOME/firewall.txt
+保存IPv6 ip6tables防火墙
+
+sudo ip6tables-save > $HOME/firewall-6.txt
+恢复IPv4 iptables防火墙
+
+使用iptables-restore命令恢复防火墙规则：
+
+sudo iptables-restore < $HOME/firewall.txt
+恢复IPv6 ip6tables防火墙
+
+sudo ip6tables-restore < $HOME/firewall-6.txt
+
+
+
+1、连接问题
+	要将sudo vim /etc/apache2/sites-available/myproject.conf中的
+	  Require all granted
+      Options FollowSymlinks
+      AllowOverride None  
+
+	将none 改为All
+
+
+2、查看错误日志  sudo vi /var/log/apache2/django-....
+
+		查找到错误是没有pymysql安装   
+
+3、数据库报错  1698, "Access denied for user 'root'@'localhost'"
+
+	重置密码 $ sudo mysql -u root # I had to use "sudo" since is new installation
+
+mysql> USE mysql;
+mysql> UPDATE user SET plugin='mysql_native_password' WHERE User='root';
+mysql> FLUSH PRIVILEGES;
+mysql> exit;
+
+$ service mysql restart
+
+4、Django 超级用户创建
+ 在Django 文件内  执行python3 manage.py createsuperuser
+
+5、You don't have permission to access /myadmin/ on this server.
+Server unable to read htaccess file, denying access to be safe
+
+于是就按提示在/home/fynas/下新建了“.htaccess”文件，写入如下内容并保存：
+
+
+Order allow,deny
+Allow from all
+Require all granted
+
+Order allow,deny
+Allow from all
+Require all granted
+再将目录设置为可执行
+
+
+chmod -R 755 /home/fynas/
+
+chmod -R 755 /home/fynas/
+同时修改apache配置文件中Directory节点，大致如下：
+
+
+<Directory "/home/fynas/www">
+    Options FollowSymLinks
+    AllowOverride all
+    Require all granted #新版本apache变成这样的
+</Directory>
+
+<Directory "/home/fynas/www">
+    Options FollowSymLinks
+    AllowOverride all
+    Require all granted #新版本apache变成这样的
+</Directory>
+重启apache再访问就ok了。
+
+
+
+
+
+
+
